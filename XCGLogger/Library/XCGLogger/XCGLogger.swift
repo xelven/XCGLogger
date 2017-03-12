@@ -275,11 +275,13 @@ public class XCGFileLogDestination: XCGBaseLogDestination {
 
         if let writeToFileURL = writeToFileURL,
           let path = writeToFileURL.path {
-
-            NSFileManager.defaultManager().createFileAtPath(path, contents: nil, attributes: nil)
-            do {
-                logFileHandle = try NSFileHandle(forWritingToURL: writeToFileURL)
-            }
+			if(!NSFileManager.defaultManager().fileExistsAtPath(path)) {
+				NSFileManager.defaultManager().createFileAtPath(path, contents: nil, attributes: nil)
+			}
+			do {
+				logFileHandle = try NSFileHandle(forWritingToURL: writeToFileURL)
+				logFileHandle?.seekToEndOfFile()
+			}
             catch let error as NSError {
                 owner._logln("Attempt to open log file for writing failed: \(error.localizedDescription)", logLevel: .Error)
                 logFileHandle = nil
